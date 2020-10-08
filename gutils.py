@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Aug  6 17:35:09 2020
+
 @author: luiggi
 """
 import numpy as np
@@ -16,6 +17,7 @@ class planoCartesiano():
     def __init__(self, rows = 1, cols = 1, par = None, par_fig={'figsize':(10,5)}, title=''):
         """
         Crea e inicializa una figura de matplotlib.
+
         Parameters
         ----------
         rows : int, opcional
@@ -28,6 +30,7 @@ class planoCartesiano():
         par_fig : dict, opcional
             Diccionario con los parámetros para decorar la figura. 
             The default is {}.
+
         """
         self.__fig = plt.figure(**par_fig)
         self.__fig.suptitle(title, fontweight='light', fontsize='12', color='blue')
@@ -67,6 +70,16 @@ class planoCartesiano():
             out = self.__ax[n-1].scatter(x, y)         
         return out      
 
+    def bar(self, n = 1, x = None, y = None, par=None):        
+        assert (n >= 1 and n <= self.__nfigs), \
+        "Plotter.plot(%d) out of bounds. Valid bounds : [1,%d]" % (n,self.__nfigs)        
+
+        if par != None:
+            out = self.__ax[n-1].bar(x, y, **par)
+        else:
+            out = self.__ax[n-1].bar(x, y)
+                    
+        return out     
 
     def format_func(value, tick_number):
         # find number of multiples of pi/2
@@ -96,14 +109,45 @@ class planoCartesiano():
             if len(yticks) != 0:
                 self.__ax[n-1].set_yticks(yticks)
 
+    def label_ticks(self, n = 1, xlabel = [], ylabel = []):
+        assert (n >= 1 and n <= self.__nfigs), \
+        "Plotter.plot(%d) out of bounds. Valid bounds : [1,%d]" % (n,self.__nfigs)   
+        
+        if len(xlabel):
+            self.__ax[n-1].set_xticklabels(xlabel)
+        if len(ylabel):
+            self.__ax[n-1].set_yticklabels(ylabel)
+            
+    def limits(self, n = 1, x = (), y = ()):
+        assert (n >= 1 and n <= self.__nfigs), \
+        "Plotter.plot(%d) out of bounds. Valid bounds : [1,%d]" % (n,self.__nfigs)
+
+        if len(x):
+            offset = np.fabs(x[1] - x[0]) * 0.2
+            self.__ax[n-1].set_xlim((x[0]-offset,x[1]+offset))
+        if len(y):
+            offset = np.fabs(y[1] - y[0]) * 0.2
+            self.__ax[n-1].set_ylim((y[0]-offset,y[1]+offset))
+
+    def colorbar(self, n=1, m=None, par=None):
+        assert (n >= 1 and n <= self.__nfigs), \
+        "Plotter.plot(%d) out of bounds. Valid bounds : [1,%d]" % (n,self.__nfigs)
+
+        if par != None:
+            self.__fig.colorbar(m, ax = self.__ax[n-1], **par)
+        else:
+            self.__fig.colorbar(m, ax = self.__ax[n-1])
+
     def legend(self, par=None):
         """
         Muestra las leyendas de todos los subplots, si están definidos.
+
         Parameters
         ----------
         par : dict, opcional
             Diccionario con los parámetros para decorar las leyendas. 
             The default is None.
+
         Returns
         -------
         None.
@@ -111,6 +155,7 @@ class planoCartesiano():
         See Also
         --------
         matplotlib.axes.Axes.legend().
+
         """
         if par != None:   
             [self.__ax[n].legend(**par) for n in range(0,self.__nfigs)]        
@@ -135,6 +180,26 @@ class planoCartesiano():
         "Plotter.plot(%d) out of bounds. Valid bounds : [1,%d]" % (n,self.__nfigs)        
 
         return self.__ax[n-1].annotate(**par)
+
+
+def RMS(ua, u):
+    """
+    Calcula el error cuadrático medio entre u y ua.
+    
+    Parameters
+    ----------
+    ua: np.array
+    Arreglo de valores aproximados.
+    
+    u: np.array
+    Arreglo de valores exactos.
+    
+    Returns
+    -------
+    float
+    El error cuadrático medio entre u y ua.
+    """
+    return np.sqrt(np.sum((ua - u)**2) / len(ua))
         
 #----------------------- TEST OF THE MODULE ----------------------------------   
 if __name__ == '__main__':
@@ -165,4 +230,7 @@ if __name__ == '__main__':
     vis2.scatter(x = semanas, y = porciones)
     vis2.ticks(xticks = semanas)
     vis2.show()
+
+
+
 
